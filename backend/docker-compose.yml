@@ -1,0 +1,4 @@
+services:
+  spring-boot-app:
+    build:
+      dockerfile: Dockerfile
