@@ -1,4 +1,6 @@
 services:
-  spring-boot-app:
+  words-api:
     build:
       dockerfile: Dockerfile
+    ports:
+      - "8080:8080"

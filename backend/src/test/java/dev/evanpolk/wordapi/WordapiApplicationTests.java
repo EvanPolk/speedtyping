@@ -1,10 +1,10 @@
-package dev.evanpolk.wordapi;
+package dev.evanpolk.WordAPI;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class WordapiApplicationTests {
+class WordApiApplicationTests {
 
 	@Test
 	void contextLoads() {

@@ -1,31 +1,80 @@
 import React, { useEffect, useState, useRef } from "react";
 
 interface Props {
-  text: String;
+  words: Array<string>;
+  isTyping: boolean;
+  toggleIsTyping: (value: boolean) => void;
+  setWordsPerMinute: (value: number) => void;
+  fetchWords: () => void;
 }
 
-function TextPort({ text }: Props) {
+interface JointCharacter {
+  char: string;
+  index: number;
+  wordIndex: number;
+}
+
+function TextPort({
+  words,
+  isTyping,
+  toggleIsTyping,
+  setWordsPerMinute,
+  fetchWords,
+}: Props) {
   const [counter, setCounter] = useState(0);
+  const [wordCount, setWordCount] = useState(0);
+  const [startTime, setStartTime] = useState(-1);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const splitInput = text.split("");
+  let line = "";
+
+  for (let i = 0; i < words.length; i++) {
+    line += words[i] + " ";
+  }
+
+  line = line.slice(0, line.length - 1);
+
+  let spaceCount = 0;
+
+  const splitInput: JointCharacter[] = line.split("").map((char, index) => ({
+    char,
+    index,
+    wordIndex: line.substring(0, index).split(" ").length - 1,
+  }));
 
   useEffect(() => {
-    inputRef.current?.focus();
+    setInterval(() => {
+      inputRef.current?.focus();
+    }, 1000);
   }, []);
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (line.charAt(counter) === event.key) {
+      setCounter((counter) => counter + 1);
+
+      if (line.charAt(counter) === " ") {
+        setWordCount((wordCount) => wordCount + 1);
+      }
+    }
+
+    if (counter === 1) {
+      setStartTime(Date.now());
+      toggleIsTyping(true);
+    }
+
+    if (counter === line.length - 1) {
+      const minutes = (Date.now() - startTime) / 60000;
+      const words = wordCount + 1;
+      const wordsPerMinute = words / minutes;
+      setWordsPerMinute(Math.round(wordsPerMinute));
+      toggleIsTyping(false);
+      setCounter(0);
+      fetchWords();
+    }
+  };
 
   const handleClick = () => {
     inputRef.current?.focus();
-  };
-
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === splitInput[counter]) {
-      setCounter((counter) => counter + 1);
-    }
-
-    if (counter === splitInput.length - 1) {
-      setCounter(0);
-    }
   };
 
   return (
@@ -34,16 +83,34 @@ function TextPort({ text }: Props) {
       onClick={handleClick}
     >
       <div className="flex flex-row flex-wrap items-center">
-        {splitInput.map((char: String, index: number) => (
-          <div key={index} className="flex flex-row items-center text-3xl">
-            {index === counter ? (
-              <div className="w-0.5 h-7 bg-amber-400"></div>
-            ) : (
-              <></>
-            )}
-            <span className={index < counter ? "text-white" : "text-zinc-700"}>
-              {char === " " ? "\u00A0" : char}
-            </span>
+        {line.split(" ").map((word, wordIndex) => (
+          <div key={wordIndex} className="flex flex-row text-3xl items-center">
+            {splitInput
+              .filter((char) => char.wordIndex === wordIndex)
+              .map((char, index) => (
+                <>
+                  {counter === char.index ? (
+                    <div
+                      className={
+                        isTyping
+                          ? "h-7 w-0.5 transition ease-in-out rounded bg-amber-400"
+                          : "h-7 w-0.5 transition ease-in-out rounded bg-green-800"
+                      }
+                    ></div>
+                  ) : (
+                    <></>
+                  )}
+                  <span
+                    key={char.index}
+                    className={
+                      counter > char.index ? "text-white" : "text-zinc-600"
+                    }
+                  >
+                    {char.char}
+                  </span>
+                </>
+              ))}
+            <span>&nbsp;</span>
           </div>
         ))}
       </div>
