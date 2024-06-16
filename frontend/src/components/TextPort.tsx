@@ -34,8 +34,6 @@ function TextPort({
 
   line = line.slice(0, line.length - 1);
 
-  let spaceCount = 0;
-
   const splitInput: JointCharacter[] = line.split("").map((char, index) => ({
     char,
     index,
@@ -83,11 +81,11 @@ function TextPort({
       onClick={handleClick}
     >
       <div className="flex flex-row flex-wrap items-center">
-        {line.split(" ").map((word, wordIndex) => (
+        {line.split(" ").map((_, wordIndex: number) => (
           <div key={wordIndex} className="flex flex-row text-3xl items-center">
             {splitInput
               .filter((char) => char.wordIndex === wordIndex)
-              .map((char, index) => (
+              .map((char) => (
                 <>
                   {counter === char.index ? (
                     <div
