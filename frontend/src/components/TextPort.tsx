@@ -55,18 +55,18 @@ function TextPort({
       }
     }
 
-    if (counter === 1) {
+    if (counter === 0) {
       setStartTime(Date.now());
       toggleIsTyping(true);
     }
 
     if (counter === line.length - 1) {
       const minutes = (Date.now() - startTime) / 60000;
-      const words = wordCount + 1;
-      const wordsPerMinute = words / minutes;
+      const wordsPerMinute = (wordCount + 1) / minutes;
       setWordsPerMinute(Math.round(wordsPerMinute));
       toggleIsTyping(false);
       setCounter(0);
+      setWordCount(0);
       fetchWords();
     }
   };
